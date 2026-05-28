@@ -1,0 +1,83 @@
+<div class="container-fluid py-3">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary-medical fw-bold mb-0">Calendario General de Atenciones</h3>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            
+            <div *ngIf="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary-medical" role="status"></div>
+                <p class="text-muted mt-2">Dibujando la agenda clínica...</p>
+            </div>
+
+            <div *ngIf="!cargando">
+                <full-calendar [options]="calendarOptions"></full-calendar>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<button type="button" id="btnAbrirModalDetalle" class="d-none" data-bs-toggle="modal" data-bs-target="#modalDetalleCita"></button>
+
+<div class="modal fade" id="modalDetalleCita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            
+            <div class="modal-header border-0 bg-light rounded-top-4 pb-0">
+                <h5 class="modal-title fw-bold text-primary-medical">
+                    <i class="bi bi-info-circle me-2"></i>Detalle de la Cita
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4" *ngIf="eventoSeleccionado">
+                
+                <div class="text-center mb-4">
+                    <span class="badge fs-6 rounded-pill px-4 py-2" [style.background-color]="eventoSeleccionado.backgroundColor">
+                        {{ eventoSeleccionado.extendedProps.estado }}
+                    </span>
+                </div>
+
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 py-3 d-flex align-items-center">
+                        <i class="bi bi-calendar-event text-primary-medical fs-4 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block fw-bold text-uppercase">Fecha y Hora</small>
+                            <span class="fs-6">{{ eventoSeleccionado.start | date:'EEEE, dd MMMM yyyy - hh:mm a' }}</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-0 py-3 d-flex align-items-center">
+                        <i class="bi bi-person text-primary-medical fs-4 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block fw-bold text-uppercase">Paciente</small>
+                            <span class="fs-6 fw-semibold">{{ eventoSeleccionado.extendedProps.paciente }}</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-0 py-3 d-flex align-items-center">
+                        <i class="bi bi-person-badge text-primary-medical fs-4 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block fw-bold text-uppercase">Odontólogo a cargo</small>
+                            <span class="fs-6">{{ eventoSeleccionado.extendedProps.odontologo }}</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-0 py-3 d-flex align-items-center">
+                        <i class="bi bi-door-open text-primary-medical fs-4 me-3"></i>
+                        <div>
+                            <small class="text-muted d-block fw-bold text-uppercase">Ubicación</small>
+                            <span class="fs-6">{{ eventoSeleccionado.extendedProps.consultorio }}</span>
+                        </div>
+                    </li>
+                </ul>
+
+            </div>
+            
+            <div class="modal-footer border-0 bg-light rounded-bottom-4">
+                <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+<div class="container-fluid py-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary-medical fw-bold mb-0">Directorio de Pacientes</h3>
+        <button class="btn btn-primary-medical px-4 py-2 rounded-3 shadow-sm" data-bs-toggle="modal"
+            data-bs-target="#modalRegistroPacienteDoctor" (click)="abrirModalNuevo()">
+            <i class="bi bi-person-plus-fill me-2"></i>Registrar Nuevo
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4 p-3 bg-light">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por DNI exacto..."
+                [(ngModel)]="dniBusqueda" (keyup.enter)="buscarPaciente()">
+            <button class="btn btn-primary-medical px-4" type="button" (click)="buscarPaciente()">Buscar</button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted">
+                        <tr>
+                            <th class="ps-4">DNI</th>
+                            <th>Nombre Completo</th>
+                            <th>Fecha de Nacimiento</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="cargando">
+                            <td colspan="4" class="text-center py-5">
+                                <div class="spinner-border text-primary-medical" role="status"></div>
+                            </td>
+                        </tr>
+                        <ng-container *ngIf="!cargando">
+                            <tr *ngFor="let paciente of listaPacientes">
+                                <td class="ps-4 fw-bold text-muted">{{ paciente.DNI || paciente.dni }}</td>
+                                <td class="fw-semibold">{{ paciente.nombre }}</td>
+                                <td><i class="bi bi-calendar3 me-2 text-muted"></i>{{ paciente.fechaNacimiento |
+                                    date:'dd/MM/yyyy' }}</td>
+                                <td><span class="badge bg-success rounded-pill px-3">{{ paciente.estado }}</span></td>
+                            </tr>
+                        </ng-container>
+                        <tr *ngIf="!cargando && listaPacientes.length === 0">
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="bi bi-inboxes fs-1 d-block mb-2"></i> No se encontraron pacientes activos.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistroPacienteDoctor" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 bg-light rounded-top-4 pb-0">
+                <h5 class="modal-title fw-bold text-primary-medical">Registrar Paciente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    id="btnCerrarModalPacienteDoctor"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form [formGroup]="pacienteForm">
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-semibold small text-uppercase">DNI del Paciente</label>
+                        <input type="text" class="form-control" formControlName="dni" placeholder="Ej. 76543210"
+                            maxlength="8">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-semibold small text-uppercase">Nombre Completo</label>
+                        <input type="text" class="form-control" formControlName="nombre"
+                            placeholder="Nombres y Apellidos">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-semibold small text-uppercase">Fecha de
+                            Nacimiento</label>
+                        <input type="date" class="form-control" formControlName="fechaNacimiento">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 bg-light rounded-bottom-4">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary-medical" (click)="guardarPaciente()">Guardar
+                    Paciente</button>
+            </div>
+        </div>
+    </div>
+</div>

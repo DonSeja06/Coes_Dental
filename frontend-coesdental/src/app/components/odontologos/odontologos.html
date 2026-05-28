@@ -1,0 +1,275 @@
+<div class="container-fluid py-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary-medical fw-bold mb-0">Gestión de Odontólogos</h3>
+        <div *ngIf="!modoInactivos">
+            <button class="btn btn-outline-secondary rounded-3 shadow-sm me-2" data-bs-toggle="modal"
+                data-bs-target="#modalEspecialidades" (click)="prepararNuevaEspecialidad()">
+                <i class="bi bi-gear-fill me-1"></i> Especialidades
+            </button>
+            <button class="btn btn-primary-medical rounded-3 shadow-sm" data-bs-toggle="modal"
+                data-bs-target="#modalOdontologo" (click)="abrirModalNuevo()">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Odontólogo
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group shadow-sm">
+                <input type="text" class="form-control border-end-0" placeholder="Buscar por DNI..." #txtDni
+                    (keyup.enter)="buscarDni(txtDni.value)">
+                <button class="btn btn-light border bg-white" type="button" (click)="buscarDni(txtDni.value)">
+                    <i class="bi bi-search text-primary-medical"></i>
+                </button>
+                <button class="btn btn-light border bg-white text-danger" type="button"
+                    (click)="txtDni.value=''; buscarDni('')" title="Limpiar búsqueda">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="btn-group shadow-sm" role="group">
+                <button type="button" class="btn"
+                    [ngClass]="!modoInactivos ? 'btn-primary-medical' : 'btn-light border'"
+                    (click)="cambiarVista(false)">Activos</button>
+                <button type="button" class="btn"
+                    [ngClass]="modoInactivos ? 'btn-secondary text-white' : 'btn-light border'"
+                    (click)="cambiarVista(true)">Inactivos</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>DNI</th>
+                            <th>Nombre</th>
+                            <th>Especialidad</th>
+                            <th>Estado</th>
+                            <th class="text-center pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr *ngIf="cargando">
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary-medical" role="status"></div>
+                                <p class="text-muted mt-2">Cargando odontólogos...</p>
+                            </td>
+                        </tr>
+
+                        <ng-container *ngIf="!cargando">
+                            <tr *ngFor="let o of listaOdontologos">
+                                <td class="ps-4 fw-bold text-primary-medical">#{{ o.id }}</td>
+                                <td>{{ o.DNI }}</td>
+                                <td>{{ o.nombre }}</td>
+                                <td>
+                                    <span class="badge bg-info text-dark rounded-pill px-3">{{ o.especialidad || 'General' }}</span>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge rounded-pill px-3"
+                                        [ngClass]="!modoInactivos ? 'bg-success' : 'bg-secondary'">
+                                        {{ !modoInactivos ? 'ACTIVO' : 'INACTIVO' }}
+                                    </span>
+                                </td>
+                                
+                                <td class="text-center pe-4">
+                                    <ng-container *ngIf="!modoInactivos">
+                                        <button class="btn btn-sm btn-outline-primary me-2" title="Editar"
+                                            data-bs-toggle="modal" data-bs-target="#modalOdontologo"
+                                            (click)="abrirModalEditar(o)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="Desactivar"
+                                            (click)="desactivarOdontologo(o.id)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="modoInactivos">
+                                        <button class="btn btn-sm btn-outline-success" title="Reactivar"
+                                            (click)="reactivarOdontologo(o.id)">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reactivar
+                                        </button>
+                                    </ng-container>
+                                </td>
+                            </tr>
+                        </ng-container>
+
+                        <tr *ngIf="!cargando && listaOdontologos.length === 0">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-person-badge fs-2 d-block mb-2"></i>
+                                No hay odontólogos {{ !modoInactivos ? 'activos' : 'inactivos' }} con ese criterio.
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalOdontologo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-primary-medical text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi" [ngClass]="odontologoEnEdicion ? 'bi-pencil-square' : 'bi-person-plus'"></i>
+                    {{ odontologoEnEdicion ? 'Editar Odontólogo' : 'Registrar Odontólogo' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form [formGroup]="odontologoForm">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">DNI</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-person-vcard text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" formControlName="DNI"
+                                    placeholder="Ej. 12345678" maxlength="8">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">N° Colegiatura</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-award text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" formControlName="colegiatura"
+                                    placeholder="Ej. 12345" maxlength="5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-primary-medical">Nombre Completo</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i
+                                    class="bi bi-person text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" formControlName="nombre"
+                                placeholder="Nombres y Apellidos">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-envelope text-muted"></i></span>
+                                <input type="email" class="form-control border-start-0" formControlName="correo"
+                                    placeholder="correo@ejemplo.com">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">Teléfono (Opcional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-telephone text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" formControlName="telefono"
+                                    placeholder="Ej. 987654321" maxlength="9">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-primary-medical">Contraseña del Sistema</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i
+                                    class="bi bi-key text-muted"></i></span>
+                            <input type="password" class="form-control border-start-0" formControlName="password"
+                                placeholder="Asigna una contraseña segura">
+                        </div>
+                        <div class="form-text small text-muted">Requerida por el sistema para que el odontólogo inicie
+                            sesión.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-primary-medical">Especialidad</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i
+                                    class="bi bi-heart-pulse text-muted"></i></span>
+                            <select class="form-select border-start-0" formControlName="especialidadId">
+                                <option value="" disabled selected>Seleccione una especialidad...</option>
+                                <option *ngFor="let esp of listaEspecialidades" [value]="esp.id">
+                                    {{ esp.nombre }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    id="btnCerrarModalOdontologo">Cancelar</button>
+                <button type="button" class="btn btn-primary-medical" (click)="guardarOdontologo()"
+                    [disabled]="odontologoForm.invalid">
+                    {{ odontologoEnEdicion ? 'Actualizar Odontólogo' : 'Guardar Odontólogo' }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEspecialidades" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-secondary text-white border-0">
+                <h6 class="modal-title fw-bold"><i class="bi bi-tags me-2"></i>Catálogo de Especialidades</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <form [formGroup]="especialidadForm" (ngSubmit)="guardarEspecialidad()" class="d-flex mb-3">
+                    <input type="text" class="form-control me-2 border-secondary" formControlName="nombre"
+                        placeholder="Ej. Ortodoncia...">
+                    <button type="submit" class="btn btn-secondary" [disabled]="especialidadForm.invalid">
+                        <i class="bi" [ngClass]="especialidadEnEdicion ? 'bi-check-lg' : 'bi-plus-lg'"></i>
+                    </button>
+                    <button *ngIf="especialidadEnEdicion" type="button" class="btn btn-light ms-1"
+                        (click)="prepararNuevaEspecialidad()" title="Cancelar edición">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </form>
+
+                <hr class="text-muted">
+
+                <div class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0"
+                        *ngFor="let esp of listaEspecialidades">
+                        <span class="text-muted fw-medium">{{ esp.nombre }}</span>
+                        <button class="btn btn-sm btn-outline-primary border-0"
+                            (click)="seleccionarEspecialidadParaEditar(esp)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+
+                    <div class="text-center text-muted small py-3" *ngIf="listaEspecialidades.length === 0">
+                        No hay especialidades registradas.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

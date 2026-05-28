@@ -1,0 +1,79 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-primary-medical text-white vh-100 shadow" style="width: 260px;">
+    <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <i class="bi bi-heart-pulse-fill fs-3 me-2"></i>
+        <span class="fs-4 fw-bold">CoesDental</span>
+    </a>
+    <hr>
+
+    <ul class="nav nav-pills flex-column mb-auto">
+        <ng-container *ngIf="rol === 'ROLE_Admin'">
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/dashboard" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-house-door me-2"></i> Inicio
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/odontologos" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-person-badge me-2"></i> Odontólogos
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/pacientes" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-people me-2"></i> Pacientes
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/consultorios" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-door-open me-2"></i> Consultorios
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/citas" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-calendar-check me-2"></i> Gestión de Citas
+                </a>
+            </li>
+        </ng-container>
+
+        <ng-container *ngIf="rol === 'ROLE_Odontologo'">
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/mis-citas" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-calendar-event me-2"></i> Mis Citas
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/mis-pacientes" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-people me-2"></i> Mis Pacientes
+                </a>
+            </li>
+        </ng-container>
+
+        <li class="nav-item mb-1 mt-3">
+            <a routerLink="/layout/calendario" class="nav-link text-white border border-light rounded-3"
+                routerLinkActive="bg-white text-primary-medical fw-bold border-0">
+                <i class="bi bi-calendar3 me-2"></i> Calendario Visual
+            </a>
+        </li>
+    </ul>
+
+    <hr>
+    
+    <div class="dropdown" style="position: relative;">
+        <a (click)="toggleMenu()" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+            id="dropdownUser" style="cursor: pointer;">
+            <i class="bi bi-person-circle fs-4 me-2"></i>
+            <strong>{{ username || 'Usuario' }}</strong>
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" [class.show]="menuAbierto"
+            style="position: absolute; bottom: 100%; left: 0; margin-bottom: 0.5rem;">
+            <li><a class="dropdown-item" (click)="cerrarSesion()" style="cursor: pointer;">Cerrar Sesión</a></li>
+        </ul>
+    </div>
+</div>

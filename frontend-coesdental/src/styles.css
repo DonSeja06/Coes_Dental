@@ -1,0 +1,41 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+    --blue-primary: #0A4275;
+
+    --blue-secondary: #1E88E5;
+
+    --bg-light: #F4F7F6;
+
+    --text-dark: #2C3E50;
+
+    --text-light: #FFFFFF;
+
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+.bg-primary-medical {
+    background-color: var(--blue-primary) !important;
+}
+
+.text-primary-medical {
+    color: var(--blue-primary) !important;
+}
+
+.btn-primary-medical {
+    background-color: var(--blue-primary);
+    color: white;
+    border: none;
+}
+
+.btn-primary-medical:hover {
+    background-color: var(--blue-secondary);
+    color: white;
+}

@@ -1,0 +1,158 @@
+<div class="container-fluid py-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary-medical fw-bold mb-0">Gestión de Citas Médicas</h3>
+        <button class="btn btn-primary-medical rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCita"
+            (click)="abrirModalNuevo()">
+            <i class="bi bi-calendar-plus me-1"></i> Programar Cita
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted">
+                        <tr>
+                            <th class="ps-4">Fecha y Hora</th>
+                            <th>Paciente</th>
+                            <th>Odontólogo</th>
+                            <th>Consultorio</th>
+                            <th>Estado</th>
+                            <th class="text-center pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr *ngIf="cargando">
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary-medical" role="status"></div>
+                                <p class="text-muted mt-2">Cargando cronograma...</p>
+                            </td>
+                        </tr>
+
+                        <ng-container *ngIf="!cargando">
+                            <tr *ngFor="let c of listaCitas">
+                                <td class="ps-4 fw-bold text-primary-medical">
+                                    <i class="bi bi-calendar-event me-2 text-muted"></i>
+                                    {{ c.fechaCita | date:'dd/MM/yyyy HH:mm' }}
+                                </td>
+                                <td class="fw-semibold">{{ c.nombrePaciente }}</td>
+                                <td>{{ c.nombreOdontologo }}</td>
+                                <td class="text-muted">{{ c.nombreConsultorio }}</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3" [ngClass]="{
+                          'bg-primary': c.estadoCita === 'CREADA',
+                          'bg-warning text-dark': c.estadoCita === 'POSPUESTA',
+                          'bg-info text-dark': c.estadoCita === 'ATENCION',
+                          'bg-success': c.estadoCita === 'FINALIZADA',
+                          'bg-danger': c.estadoCita === 'CANCELADA'
+                        }">
+                                        {{ c.estadoCita }}
+                                    </span>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <button *ngIf="c.estadoCita === 'CREADA' || c.estadoCita === 'POSPUESTA'"
+                                        class="btn btn-sm btn-outline-danger" title="Cancelar Cita"
+                                        (click)="cancelarCita(c.id)">
+                                        <i class="bi bi-x-circle"></i> Cancelar
+                                    </button>
+                                </td>
+                            </tr>
+                        </ng-container>
+
+                        <tr *ngIf="!cargando && listaCitas.length === 0">
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                                No hay citas programadas.
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-primary-medical text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-calendar-plus me-2"></i>Agendar Nueva Cita</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form [formGroup]="citaForm">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">Paciente</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-person text-muted"></i></span>
+                                <select class="form-select border-start-0" formControlName="pacienteId">
+                                    <option value="" disabled selected>Seleccione al paciente</option>
+                                    <option *ngFor="let p of listaPacientes" [value]="p.id">{{ p.DNI }} - {{ p.nombre }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">Odontólogo Asignado</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-person-badge text-muted"></i></span>
+                                <select class="form-select border-start-0" formControlName="odontologoId">
+                                    <option value="" disabled selected>Seleccione al doctor</option>
+                                    <option *ngFor="let o of listaOdontologos" [value]="o.id">{{ o.nombre }} ({{
+                                        o.especialidad || 'General' }})</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">Consultorio / Ubicación</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-door-open text-muted"></i></span>
+                                <select class="form-select border-start-0" formControlName="consultorioId">
+                                    <option value="" disabled selected>Seleccione el consultorio</option>
+                                    <option *ngFor="let c of listaConsultorios" [value]="c.id">Piso {{ c.piso }} - {{
+                                        c.nombreConsultorio }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-primary-medical">Fecha y Hora</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-clock text-muted"></i></span>
+                                <input type="datetime-local" class="form-control border-start-0"
+                                    formControlName="fechaCita">
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    id="btnCerrarModalCita">Cerrar</button>
+                <button type="button" class="btn btn-primary-medical" (click)="guardarCita()"
+                    [disabled]="citaForm.invalid">
+                    Confirmar Reserva
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

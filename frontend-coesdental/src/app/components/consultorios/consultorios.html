@@ -1,0 +1,115 @@
+<div class="container-fluid py-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary-medical fw-bold mb-0">Gestión de Consultorios</h3>
+        <button class="btn btn-primary-medical rounded-3 shadow-sm" data-bs-toggle="modal"
+            data-bs-target="#modalConsultorio" (click)="abrirModalNuevo()">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Consultorio
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Nombre del Consultorio</th>
+                            <th>Piso</th>
+                            <th>Estado</th>
+                            <th class="text-center pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr *ngIf="cargando">
+                            <td colspan="5" class="text-center py-5">
+                                <div class="spinner-border text-primary-medical" role="status"></div>
+                                <p class="text-muted mt-2">Cargando consultorios...</p>
+                            </td>
+                        </tr>
+
+                        <ng-container *ngIf="!cargando">
+                            <tr *ngFor="let c of listaConsultorios">
+                                <td class="ps-4 fw-bold text-primary-medical">#{{ c.id }}</td>
+                                <td class="fw-semibold">{{ c.nombreConsultorio }}</td>
+                                <td class="text-muted">Piso {{ c.piso }}</td>
+                                <td>
+                                    <span class="badge bg-success rounded-pill px-3">ACTIVO</span>
+                                </td>
+                                <td class="text-center pe-4">
+
+                                    <button class="btn btn-sm btn-outline-danger" title="Desactivar"
+                                        (click)="desactivarConsultorio(c.id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </ng-container>
+
+                        <tr *ngIf="!cargando && listaConsultorios.length === 0">
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-door-open fs-2 d-block mb-2"></i>
+                                No hay consultorios registrados activos.
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConsultorio" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-primary-medical text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi" [ngClass]="consultorioEnEdicion ? 'bi-pencil-square' : 'bi-door-open'"></i>
+                    {{ consultorioEnEdicion ? 'Editar Consultorio' : 'Registrar Consultorio' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form [formGroup]="consultorioForm">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-primary-medical">Nombre del Consultorio</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i
+                                    class="bi bi-door-open text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" formControlName="nombreConsultorio"
+                                placeholder="Ej. Pediatría A">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-primary-medical">Piso</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i
+                                    class="bi bi-building text-muted"></i></span>
+                            <input type="number" class="form-control border-start-0" formControlName="piso"
+                                placeholder="Ej. 1, 2, 3...">
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    id="btnCerrarModalConsultorio">Cancelar</button>
+                <button type="button" class="btn btn-primary-medical" (click)="guardarConsultorio()"
+                    [disabled]="consultorioForm.invalid">
+                    {{ consultorioEnEdicion ? 'Actualizar Consultorio' : 'Guardar Consultorio' }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

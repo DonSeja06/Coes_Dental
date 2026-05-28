@@ -1,0 +1,50 @@
+<div class="container-fluid bg-light vh-100 d-flex justify-content-center align-items-center">
+
+    <div class="card shadow-lg border-0 rounded-4" style="max-width: 400px; width: 100%;">
+        <div class="card-body p-5">
+
+            <div class="text-center mb-4">
+                <i class="bi bi-heart-pulse-fill text-primary-medical" style="font-size: 3.5rem;"></i>
+                <h3 class="fw-bold mt-2 text-primary-medical">CoesDental</h3>
+                <p class="text-muted">Ingresa a tu cuenta para continuar</p>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+                <div class="mb-3">
+                    <label for="correo" class="form-label fw-semibold">Correo Electrónico</label>
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="bi bi-envelope text-muted"></i></span>
+                        <input type="email" id="correo" class="form-control border-start-0" formControlName="correo"
+                            placeholder="admin@coes.com">
+                    </div>
+                    <div *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched"
+                        class="text-danger mt-1 small">
+                        Ingresa un correo válido.
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-semibold">Contraseña</label>
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="bi bi-lock text-muted"></i></span>
+                        <input type="password" id="password" class="form-control border-start-0"
+                            formControlName="password" placeholder="********">
+                    </div>
+                    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                        class="text-danger mt-1 small">
+                        La contraseña es obligatoria.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-medical w-100 py-2 rounded-3 fw-bold shadow-sm"
+                    [disabled]="loginForm.invalid">
+                    Iniciar Sesión
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>

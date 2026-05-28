@@ -1,0 +1,167 @@
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary-medical fw-bold mb-0">Mi Agenda y Atenciones</h3>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted">
+                        <tr>
+                            <th class="ps-4">Fecha y Hora</th>
+                            <th>Paciente</th>
+                            <th>Consultorio</th>
+                            <th>Estado</th>
+                            <th class="text-center pe-4">Acción Clínica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr *ngIf="cargando">
+                            <td colspan="5" class="text-center py-5">
+                                <div class="spinner-border text-primary-medical" role="status"></div>
+                                <p class="text-muted mt-2">Cargando tus citas...</p>
+                            </td>
+                        </tr>
+
+                        <ng-container *ngIf="!cargando">
+                            <tr *ngFor="let c of listaMisCitas" [ngClass]="{'bg-light': c.estadoCita === 'FINALIZADA'}">
+                                <td class="ps-4 fw-bold text-primary-medical">
+                                    <i class="bi bi-clock me-2 text-muted"></i>
+                                    {{ c.fechaCita | date:'dd/MM/yyyy HH:mm' }}
+                                </td>
+                                <td class="fw-semibold">{{ c.nombrePaciente }}</td>
+                                <td class="text-muted">{{ c.nombreConsultorio }}</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3" [ngClass]="{
+                          'bg-primary': c.estadoCita === 'CREADA',
+                          'bg-warning text-dark': c.estadoCita === 'POSPUESTA',
+                          'bg-info text-dark': c.estadoCita === 'ATENCION',
+                          'bg-success': c.estadoCita === 'FINALIZADA',
+                          'bg-danger': c.estadoCita === 'CANCELADA'
+                        }">
+                                        {{ c.estadoCita }}
+                                    </span>
+                                </td>
+                                <td class="text-center pe-4">
+
+                                    <button class="btn btn-sm btn-outline-secondary me-2" title="Ver Historial Clínico"
+                                        data-bs-toggle="modal" data-bs-target="#modalHistorial"
+                                        (click)="abrirHistorial(c)">
+                                        <i class="bi bi-journal-medical"></i>
+                                    </button>
+
+                                    <button *ngIf="c.estadoCita === 'CREADA' || c.estadoCita === 'POSPUESTA'"
+                                        class="btn btn-sm btn-primary-medical" (click)="iniciarAtencion(c)">
+                                        <i class="bi bi-play-circle me-1"></i> Iniciar
+                                    </button>
+
+                                    <button *ngIf="c.estadoCita === 'ATENCION'" class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal" data-bs-target="#modalFinalizar"
+                                        (click)="abrirModalFinalizar(c)">
+                                        <i class="bi bi-check2-circle me-1"></i> Diagnóstico
+                                    </button>
+
+                                </td>
+                            </tr>
+                        </ng-container>
+
+                        <tr *ngIf="!cargando && listaMisCitas.length === 0">
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-cup-hot fs-2 d-block mb-2"></i>
+                                No tienes citas asignadas por el momento.
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFinalizar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-clipboard-check me-2"></i>Finalizar Atención Clínica
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="alert alert-light border border-success text-success mb-4" *ngIf="citaEnAtencion">
+                    <strong>Paciente:</strong> {{ citaEnAtencion.nombrePaciente }}
+                </div>
+
+                <form [formGroup]="finalizarForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-primary-medical">Detalle de la Atención /
+                            Diagnóstico</label>
+                        <textarea class="form-control" formControlName="detalleAtencion" rows="5"
+                            placeholder="Escribe aquí los procedimientos realizados, medicamentos recetados o notas clínicas..."></textarea>
+                        <div class="form-text">Este registro se guardará permanentemente en el historial clínico del
+                            paciente.</div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    id="btnCerrarModalFinalizar">Cancelar</button>
+                <button type="button" class="btn btn-success" (click)="guardarDiagnostico()"
+                    [disabled]="finalizarForm.invalid">
+                    Guardar y Finalizar Cita
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalHistorial" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content border-0 shadow">
+      
+      <div class="modal-header bg-primary-medical text-white border-0">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-journal-text me-2"></i>Historial de {{ pacienteSeleccionado?.nombrePaciente }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <div class="modal-body p-4 bg-light">
+        
+        <div *ngIf="cargandoHistorial" class="text-center py-5">
+          <div class="spinner-border text-primary-medical" role="status"></div>
+          <p class="text-muted mt-2">Buscando registros clínicos...</p>
+        </div>
+
+        <div *ngIf="!cargandoHistorial && historialClinico.length === 0" class="text-center py-5">
+          <i class="bi bi-folder-x fs-1 text-muted mb-2 d-block"></i>
+          <p class="text-muted">Este paciente aún no tiene registros clínicos finalizados.</p>
+        </div>
+
+        <div class="timeline" *ngIf="!cargandoHistorial && historialClinico.length > 0">
+          <div class="card border-0 shadow-sm mb-3 rounded-4" *ngFor="let registro of historialClinico">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 rounded-pill">
+                  <i class="bi bi-calendar-check me-1"></i> {{ registro.fechaAtencion | date:'dd MMM yyyy' }}
+                </span>
+                <small class="text-muted fw-semibold">
+                  <i class="bi bi-person-badge"></i> {{ registro.nombreOdontologo }}
+                </small>
+              </div>
+              <p class="mb-0 text-dark">{{ registro.detalle }}</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
