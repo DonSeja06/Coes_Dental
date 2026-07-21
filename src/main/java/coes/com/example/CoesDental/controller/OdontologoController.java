@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/admin/odontologos")
+@PreAuthorize("hasRole('Admin')")
 public class OdontologoController {
 
     @Autowired
@@ -39,6 +42,7 @@ public class OdontologoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<List<OdontologoResponseDTO>> listarActivos() {
         List<OdontologoResponseDTO> listaLimpia = odontologoService.listarOdontologosActivos()
                 .stream()
@@ -86,6 +90,7 @@ public class OdontologoController {
     }
 
     @GetMapping("/buscar")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<?> buscarPorDni(@RequestParam String dni) {
         try {
             Odontologo odontologo = odontologoService.buscarPorDni(dni);

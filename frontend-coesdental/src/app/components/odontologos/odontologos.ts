@@ -57,6 +57,7 @@ export class Odontologos implements OnInit {
 
   cargarInactivos() {
     this.cargando = true;
+    this.listaOdontologos = []; // Limpiar antes de buscar
     this.odontologoService.listarInactivos().subscribe({
       next: (datos) => {
         this.listaOdontologos = datos;
@@ -112,6 +113,7 @@ export class Odontologos implements OnInit {
 
   cargarOdontologos() {
     this.cargando = true;
+    this.listaOdontologos = [];
     this.odontologoService.listarActivos().subscribe({
       next: (datos) => {
         this.listaOdontologos = datos;

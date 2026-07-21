@@ -29,19 +29,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Paciente {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank(message = "El DNI no puede estar vacio")
-    @Column(unique = true)
-    @Size(min = 8, max = 8, message = "El DNI debe tener 8 digitos")
-    private String DNI;
-
-    @NotBlank(message = "El nombre del paciente no puede estar vacio")
-    @Size(min = 2,message = "El nombre del paciente debe tener minimo dos caracteres")
-    private String nombre;
+public class Paciente extends Usuario {
 
     @NotNull(message = "La fecha de nacimiento del paciente es obligatoria")
     private LocalDateTime fechaNacimiento;
@@ -56,7 +44,4 @@ public class Paciente {
 
     @OneToOne(mappedBy = "paciente")
     private HistorialClinico historialClinico;
-
-    @Enumerated(EnumType.STRING)
-    private EstadoGeneral estado;
 }

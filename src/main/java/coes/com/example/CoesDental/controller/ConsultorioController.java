@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/admin/consultorios")
+@PreAuthorize("hasRole('Admin')")
 public class ConsultorioController {
 
     @Autowired
@@ -22,6 +25,16 @@ public class ConsultorioController {
     public ResponseEntity<ConsultorioResponseDTO> registrar(@Valid @RequestBody Consultorio consultorio) {
         Consultorio nuevoConsultorio = consultorioService.registrarConsultorio(consultorio);
         return ResponseEntity.ok(mapearDTO(nuevoConsultorio));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody Consultorio consultorio) {
+        try {
+            Consultorio consultorioActualizado = consultorioService.actualizarConsultorio(id, consultorio);
+            return ResponseEntity.ok(mapearDTO(consultorioActualizado));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping

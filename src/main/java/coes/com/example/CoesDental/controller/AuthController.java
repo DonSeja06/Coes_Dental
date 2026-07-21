@@ -67,4 +67,32 @@ public class AuthController {
                     .body("CORREO O PASSWORD INCORRECTOS O USUARIO INACTIVO");
         }
     }
+
+    @PutMapping("/cambiar-password")
+    public ResponseEntity<?> cambiarPassword(@Valid @RequestBody coes.com.example.CoesDental.dto.CambioPasswordRequest request) {
+        try {
+            // Verificar credenciales actuales
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getCorreo(),
+                            request.getPasswordActual()));
+
+            Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            // Codificar nueva contraseña y guardar
+            // No podemos inyectar BCryptPasswordEncoder directamente si causa dependencia circular,
+            // pero lo crearemos temporalmente o se asume inyectado (usamos el default)
+            org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder = 
+                new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+            usuario.setPassword(passwordEncoder.encode(request.getNuevaPassword()));
+            usuarioRepository.save(usuario);
+
+            return ResponseEntity.ok("Contraseña actualizada correctamente");
+        } catch (AuthenticationException e) {
+            return ResponseEntity.badRequest().body("La contraseña actual es incorrecta");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

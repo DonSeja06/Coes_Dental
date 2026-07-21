@@ -112,7 +112,7 @@ public class CitaService {
         }
 
         cita.setFechaCita(nuevaFecha);
-        cita.setEstado(EstadoCita.POSPUESTA);
+        cita.setEstado(EstadoCita.REPROGRAMADA);
 
         return citaRepository.save(cita);
     }
@@ -157,5 +157,9 @@ public class CitaService {
 
     public List<Cita> listarCitasPorOdontologo(Long odontologoId) {
         return citaRepository.findByOdontologoId(odontologoId);
+    }
+
+    public List<Cita> listarCitasPorPaciente(Long pacienteId) {
+        return citaRepository.findByPacienteId(pacienteId);
     }
 }

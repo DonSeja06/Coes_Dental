@@ -26,6 +26,10 @@ export class CitaService {
     return this.http.get(`${this.apiUrl}/odontologo/${odontologoId}`);
   }
 
+  listarPorPaciente(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/paciente/${id}`);
+  }
+
   iniciarAtencion(id: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/iniciar-atencion`, {});
   }

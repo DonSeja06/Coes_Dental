@@ -12,11 +12,15 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  const rolEsperado = route.data?.['expectedRole'];
+  const expectedRoles = route.data?.['expectedRoles'] as Array<string>;
 
-  if (rolEsperado && rolEsperado !== rol) {
+  if (expectedRoles && !expectedRoles.includes(rol || '')) {
     if (rol === 'ROLE_Odontologo') {
       router.navigate(['/layout/mis-citas']);
+    } else if (rol === 'ROLE_Recepcionista') {
+      router.navigate(['/layout/calendario']);
+    } else if (rol === 'ROLE_Paciente') {
+      router.navigate(['/layout/mis-citas-paciente']);
     } else {
       router.navigate(['/layout/dashboard']);
     }

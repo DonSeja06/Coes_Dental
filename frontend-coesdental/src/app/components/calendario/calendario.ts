@@ -69,11 +69,14 @@ export class Calendario implements OnInit {
           const fechaInicio = new Date(fechaISO);
           const fechaFin = new Date(fechaInicio.getTime() + (60 * 60 * 1000));
 
-          let colorBloque = '#0d6efd'; 
+          let colorBloque = '#0d6efd'; // CREADA
+          if(c.estadoCita === 'CONFIRMADA') colorBloque = '#0a58ca'; 
+          if(c.estadoCita === 'EN_ESPERA') colorBloque = '#fd7e14'; 
+          if(c.estadoCita === 'ATENCION') colorBloque = '#0dcaf0'; 
           if(c.estadoCita === 'FINALIZADA') colorBloque = '#198754'; 
           if(c.estadoCita === 'CANCELADA') colorBloque = '#dc3545'; 
-          if(c.estadoCita === 'POSPUESTA') colorBloque = '#ffc107'; 
-          if(c.estadoCita === 'ATENCION') colorBloque = '#0dcaf0'; 
+          if(c.estadoCita === 'REPROGRAMADA') colorBloque = '#ffc107'; 
+          if(c.estadoCita === 'NO_ASISTIO') colorBloque = '#6c757d'; 
 
           return {
             title: `Cita: ${c.nombrePaciente}`,

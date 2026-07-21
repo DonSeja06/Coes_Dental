@@ -19,4 +19,11 @@ public class PacienteRequestDTO {
 
     @NotNull
     private LocalDateTime fechaNacimiento;
+
+    @NotBlank
+    private String correo;
+
+    private String password;
+
+    private String telefono;
 }

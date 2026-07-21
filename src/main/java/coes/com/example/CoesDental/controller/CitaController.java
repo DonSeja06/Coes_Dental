@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/citas")
 public class CitaController {
@@ -24,16 +26,14 @@ public class CitaController {
     private CitaService citaService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<?> registrar(@Valid @RequestBody CitaRequestDTO dto) {
-        try {
-            Cita nuevaCita = citaService.registrarCita(dto);
-            return ResponseEntity.ok(mapearDTO(nuevaCita));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Cita nuevaCita = citaService.registrarCita(dto);
+        return ResponseEntity.ok(mapearDTO(nuevaCita));
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo', 'Paciente')")
     public ResponseEntity<List<CitaResponseDTO>> listarTodas() {
         List<CitaResponseDTO> lista = citaService.listarTodas()
                 .stream()
@@ -43,60 +43,59 @@ public class CitaController {
     }
 
     @PutMapping("/{id}/cancelar")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<?> cancelar(@PathVariable Long id) {
-        try {
-            citaService.cancelarCita(id);
-            return ResponseEntity.ok("Cita cancelada correctamente");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        citaService.cancelarCita(id);
+        return ResponseEntity.ok("Cita cancelada correctamente");
     }
 
     @PutMapping("/{id}/posponer")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<?> posponer(
             @PathVariable Long id, 
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime nuevaFecha) {
-        try {
-            Cita citaPospuesta = citaService.posponerCita(id, nuevaFecha);
-            return ResponseEntity.ok(mapearDTO(citaPospuesta));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Cita citaPospuesta = citaService.posponerCita(id, nuevaFecha);
+        return ResponseEntity.ok(mapearDTO(citaPospuesta));
     }
 
     @PutMapping("/{id}/iniciar-atencion")
+    @PreAuthorize("hasAnyRole('Admin', 'Odontologo')")
     public ResponseEntity<?> iniciarAtencion(@PathVariable Long id) {
-        try {
-            Cita citaAtendida = citaService.iniciarAtencion(id);
-            return ResponseEntity.ok(mapearDTO(citaAtendida));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Cita citaAtendida = citaService.iniciarAtencion(id);
+        return ResponseEntity.ok(mapearDTO(citaAtendida));
     }
 
     @PutMapping("/{id}/finalizar")
+    @PreAuthorize("hasAnyRole('Admin', 'Odontologo')")
     public ResponseEntity<?> finalizar(
             @PathVariable Long id, 
             @RequestParam String detalleAtencion) {
-        try {
-            RegistroClinico registro = citaService.finalizarCita(id, detalleAtencion);
-            
-            RegistroClinicoResponseDTO dto = new RegistroClinicoResponseDTO();
-            dto.setId(registro.getId());
-            dto.setDetalle(registro.getDetalle());
-            dto.setFechaAtencion(registro.getCita().getFechaCita());
-            dto.setNombrePaciente(registro.getCita().getPaciente().getNombre());
-            dto.setNombreOdontologo(registro.getCita().getOdontologo().getNombre());
+        RegistroClinico registro = citaService.finalizarCita(id, detalleAtencion);
+        
+        RegistroClinicoResponseDTO dto = new RegistroClinicoResponseDTO();
+        dto.setId(registro.getId());
+        dto.setDetalle(registro.getDetalle());
+        dto.setFechaAtencion(registro.getCita().getFechaCita());
+        dto.setNombrePaciente(registro.getCita().getPaciente().getNombre());
+        dto.setNombreOdontologo(registro.getCita().getOdontologo().getNombre());
 
-            return ResponseEntity.ok(dto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/odontologo/{odontologoId}")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<List<CitaResponseDTO>> listarPorOdontologo(@PathVariable Long odontologoId) {
         List<CitaResponseDTO> lista = citaService.listarCitasPorOdontologo(odontologoId)
+                .stream()
+                .map(this::mapearDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/paciente/{pacienteId}")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Paciente')")
+    public ResponseEntity<List<CitaResponseDTO>> listarPorPaciente(@PathVariable Long pacienteId) {
+        List<CitaResponseDTO> lista = citaService.listarCitasPorPaciente(pacienteId)
                 .stream()
                 .map(this::mapearDTO)
                 .collect(Collectors.toList());

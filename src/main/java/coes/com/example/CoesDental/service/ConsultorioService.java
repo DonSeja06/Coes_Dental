@@ -21,6 +21,15 @@ public class ConsultorioService {
         return consultorioRepository.save(consultorio);
     }
 
+    @Transactional
+    public Consultorio actualizarConsultorio(Long id, Consultorio datosActualizados) {
+        Consultorio consultorio = consultorioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Consultorio no encontrado con ID: " + id));
+        consultorio.setNombreConsultorio(datosActualizados.getNombreConsultorio());
+        consultorio.setPiso(datosActualizados.getPiso());
+        return consultorioRepository.save(consultorio);
+    }
+
     @Transactional(readOnly = true)
     public List<Consultorio> listarConsultoriosActivos() {
         return consultorioRepository.findByEstado(EstadoGeneral.ACTIVO);

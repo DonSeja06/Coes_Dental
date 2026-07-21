@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import coes.com.example.CoesDental.model.Rol;
+
 @Service
 public class PacienteService {
 
@@ -22,10 +25,15 @@ public class PacienteService {
     @Autowired
     private HistorialClinicoRepository historialClinicoRepository;
 
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Transactional
     public Paciente registrarPaciente(PacienteRequestDTO dto) {
         if (pacienteRepository.existsByDNI(dto.getDNI())) {
             throw new RuntimeException("El DNI ya está registrado");
+        }
+        if (dto.getPassword() == null || dto.getPassword().trim().isEmpty()) {
+            throw new RuntimeException("La contraseña es obligatoria para registrar al paciente");
         }
 
         Paciente nuevoPaciente = new Paciente();
@@ -33,6 +41,10 @@ public class PacienteService {
         nuevoPaciente.setNombre(dto.getNombre());
         nuevoPaciente.setFechaNacimiento(dto.getFechaNacimiento());
         nuevoPaciente.setEstado(EstadoGeneral.ACTIVO);
+        nuevoPaciente.setCorreo(dto.getCorreo());
+        nuevoPaciente.setTelefono(dto.getTelefono());
+        nuevoPaciente.setPassword(passwordEncoder.encode(dto.getPassword()));
+        nuevoPaciente.setRol(Rol.Paciente);
 
         nuevoPaciente.setFechaInscripcion(LocalDateTime.now());
 
@@ -65,6 +77,8 @@ public class PacienteService {
 
         paciente.setNombre(dto.getNombre());
         paciente.setFechaNacimiento(dto.getFechaNacimiento());
+        paciente.setCorreo(dto.getCorreo());
+        paciente.setTelefono(dto.getTelefono());
 
         return pacienteRepository.save(paciente);
     }

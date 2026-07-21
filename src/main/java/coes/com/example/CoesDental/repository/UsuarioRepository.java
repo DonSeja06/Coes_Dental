@@ -15,6 +15,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>{
 
     boolean existsByCorreo(String correo);
     boolean existsByDNI(String DNI);
+    boolean existsByRol(coes.com.example.CoesDental.model.Rol rol);
 
     Optional<Usuario> findByCorreo(String correo);
 }

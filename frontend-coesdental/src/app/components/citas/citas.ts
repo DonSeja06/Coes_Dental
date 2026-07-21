@@ -6,6 +6,7 @@ import { CitaService } from '../../services/cita/cita';
 import { PacienteService } from '../../services/paciente/paciente';
 import { OdontologoService } from '../../services/odontologo/odontologo';
 import { ConsultorioService } from '../../services/consultorio/consultorio';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-citas',
@@ -77,12 +78,12 @@ export class Citas implements OnInit {
       const ahora = new Date();
 
       if (fechaSeleccionada < ahora) {
-        alert('Fecha inválida: No puedes programar una cita en el pasado.');
+        Swal.fire('Error', 'Fecha inválida: No puedes programar una cita en el pasado.', 'error');
         return;
       }
 
       if (fechaSeleccionada.getMinutes() !== 0) {
-        alert('Por favor, programa las citas en horas exactas (Ej. 10:00, 11:00).');
+        Swal.fire('Aviso', 'Por favor, programa las citas en horas exactas (Ej. 10:00, 11:00).', 'warning');
         return;
       }
 
@@ -99,7 +100,7 @@ export class Citas implements OnInit {
           } else if (err.message) {
             mensajeError = err.message;
           }
-          alert( mensajeError);
+          Swal.fire('Error', mensajeError, 'error');
         }
       });
     } else {
@@ -108,11 +109,23 @@ export class Citas implements OnInit {
   }
 
   cancelarCita(id: number) {
-    if (confirm('¿Estás seguro de cancelar esta cita?')) {
-      this.citaService.cancelar(id).subscribe({
-        next: () => this.cargarCitas(),
-        error: (err) => alert('Error al cancelar la cita.')
-      });
-    }
+    Swal.fire({
+      title: '¿Cancelar Cita?',
+      text: '¿Estás seguro de cancelar esta cita? Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Volver'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.citaService.cancelar(id).subscribe({
+          next: () => {
+            Swal.fire('Cancelada', 'La cita ha sido cancelada.', 'success');
+            this.cargarCitas();
+          },
+          error: (err) => Swal.fire('Error', 'No se pudo cancelar la cita.', 'error')
+        });
+      }
+    });
   }
 }

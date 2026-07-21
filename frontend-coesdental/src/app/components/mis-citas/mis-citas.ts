@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CitaService } from '../../services/cita/cita';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-mis-citas',
@@ -40,7 +41,7 @@ export class MisCitas implements OnInit {
     const miId = Number(localStorage.getItem('userId')); 
 
     if (!miId) {
-      alert('Error de sesión: No se encontró tu ID de usuario. Vuelve a iniciar sesión.');
+      Swal.fire('Error de sesión', 'No se encontró tu ID de usuario. Vuelve a iniciar sesión.', 'error');
       return;
     }
 
@@ -59,12 +60,24 @@ export class MisCitas implements OnInit {
   }
 
   iniciarAtencion(cita: any) {
-    if (confirm(`¿Iniciar la atención del paciente ${cita.nombrePaciente}?`)) {
-      this.citaService.iniciarAtencion(cita.id).subscribe({
-        next: () => this.cargarMisCitas(),
-        error: (err) => alert(' Error al iniciar atención: ' + (err.error || err.message))
-      });
-    }
+    Swal.fire({
+      title: '¿Iniciar Atención?',
+      text: `¿Deseas iniciar la atención del paciente ${cita.nombrePaciente}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, iniciar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.citaService.iniciarAtencion(cita.id).subscribe({
+          next: () => {
+            Swal.fire('Atención Iniciada', 'Puedes proceder con el diagnóstico.', 'success');
+            this.cargarMisCitas();
+          },
+          error: (err) => Swal.fire('Error', 'No se pudo iniciar la atención: ' + (err.error || err.message), 'error')
+        });
+      }
+    });
   }
 
   abrirModalFinalizar(cita: any) {
@@ -79,10 +92,10 @@ export class MisCitas implements OnInit {
       this.citaService.finalizar(this.citaEnAtencion.id, detalle).subscribe({
         next: () => {
           document.getElementById('btnCerrarModalFinalizar')?.click();
-          alert('Cita finalizada y guardada en el historial clínico.');
+          Swal.fire('Atención Finalizada', 'Cita finalizada y guardada en el historial clínico.', 'success');
           this.cargarMisCitas();
         },
-        error: (err) => alert('Error al finalizar: ' + (err.error || err.message))
+        error: (err) => Swal.fire('Error', 'Error al finalizar: ' + (err.error || err.message), 'error')
       });
     } else {
       this.finalizarForm.markAllAsTouched();

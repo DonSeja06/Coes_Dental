@@ -9,5 +9,4 @@ class CoesDentalApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

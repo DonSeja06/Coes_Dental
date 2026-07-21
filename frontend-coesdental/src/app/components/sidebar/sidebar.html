@@ -6,8 +6,8 @@
     <hr>
 
     <ul class="nav nav-pills flex-column mb-auto">
-        <ng-container *ngIf="rol === 'ROLE_Admin'">
-            <li class="nav-item mb-1">
+        <ng-container *ngIf="rol === 'ROLE_Admin' || rol === 'ROLE_Recepcionista'">
+            <li class="nav-item mb-1" *ngIf="rol === 'ROLE_Admin'">
                 <a routerLink="/layout/dashboard" class="nav-link text-white"
                     routerLinkActive="bg-white text-primary-medical fw-bold">
                     <i class="bi bi-house-door me-2"></i> Inicio
@@ -25,7 +25,13 @@
                     <i class="bi bi-people me-2"></i> Pacientes
                 </a>
             </li>
-            <li class="nav-item mb-1">
+            <li class="nav-item mb-1" *ngIf="rol === 'ROLE_Admin'">
+                <a routerLink="/layout/recepcionistas" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-person-lines-fill me-2"></i> Recepcionistas
+                </a>
+            </li>
+            <li class="nav-item mb-1" *ngIf="rol === 'ROLE_Admin'">
                 <a routerLink="/layout/consultorios" class="nav-link text-white"
                     routerLinkActive="bg-white text-primary-medical fw-bold">
                     <i class="bi bi-door-open me-2"></i> Consultorios
@@ -35,6 +41,12 @@
                 <a routerLink="/layout/citas" class="nav-link text-white"
                     routerLinkActive="bg-white text-primary-medical fw-bold">
                     <i class="bi bi-calendar-check me-2"></i> Gestión de Citas
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/pagos" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-cash me-2"></i> Pagos
                 </a>
             </li>
         </ng-container>
@@ -50,6 +62,15 @@
                 <a routerLink="/layout/mis-pacientes" class="nav-link text-white"
                     routerLinkActive="bg-white text-primary-medical fw-bold">
                     <i class="bi bi-people me-2"></i> Mis Pacientes
+                </a>
+            </li>
+        </ng-container>
+
+        <ng-container *ngIf="rol === 'ROLE_Paciente'">
+            <li class="nav-item mb-1">
+                <a routerLink="/layout/mis-citas-paciente" class="nav-link text-white"
+                    routerLinkActive="bg-white text-primary-medical fw-bold">
+                    <i class="bi bi-calendar-event me-2"></i> Mis Citas
                 </a>
             </li>
         </ng-container>

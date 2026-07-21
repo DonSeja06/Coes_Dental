@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PacienteService } from '../../services/paciente/paciente';
+import { HistorialService } from '../../services/historial/historial';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-pacientes',
@@ -17,15 +19,23 @@ export class Pacientes implements OnInit {
   pacienteEnEdicion: number | null = null;
   modoInactivos: boolean = false;
 
+  listaHistorial: any[] = [];
+  cargandoHistorial: boolean = false;
+  pacienteSeleccionadoNombre: string = '';
+
   constructor(
     private pacienteService: PacienteService,
+    private historialService: HistorialService,
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder
   ) {
     this.pacienteForm = this.fb.group({
       DNI: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(8)]],
       nombre: ['', Validators.required],
-      fechaNacimiento: ['', Validators.required]
+      fechaNacimiento: ['', Validators.required],
+      correo: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+      telefono: ['', [Validators.maxLength(9)]]
     });
   }
 
@@ -44,6 +54,7 @@ export class Pacientes implements OnInit {
 
   cargarInactivos() {
     this.cargando = true;
+    this.listaPacientes = []; // Limpiar la lista para evitar solapamientos
     this.pacienteService.listarInactivos().subscribe({
       next: (datos) => {
         this.listaPacientes = datos;
@@ -93,6 +104,7 @@ export class Pacientes implements OnInit {
 
   cargarPacientes() {
     this.cargando = true;
+    this.listaPacientes = [];
     this.pacienteService.listarActivos().subscribe({
       next: (datos) => {
         this.listaPacientes = datos;
@@ -124,7 +136,10 @@ export class Pacientes implements OnInit {
     this.pacienteForm.patchValue({
       DNI: paciente.DNI,
       nombre: paciente.nombre,
-      fechaNacimiento: fechaLimpia
+      fechaNacimiento: fechaLimpia,
+      correo: paciente.correo,
+      telefono: paciente.telefono,
+      password: '' // No mostrar la password al editar
     });
   }
 
@@ -134,7 +149,10 @@ export class Pacientes implements OnInit {
       const payload = {
         DNI: datos.DNI,
         nombre: datos.nombre,
-        fechaNacimiento: datos.fechaNacimiento + 'T00:00:00' 
+        fechaNacimiento: datos.fechaNacimiento + 'T00:00:00',
+        correo: datos.correo,
+        password: datos.password,
+        telefono: datos.telefono
       };
 
       if (this.pacienteEnEdicion) {
@@ -182,5 +200,23 @@ export class Pacientes implements OnInit {
         }
       });
     }
+  }
+
+  abrirHistorial(idPaciente: number, nombre: string) {
+    this.pacienteSeleccionadoNombre = nombre;
+    this.cargandoHistorial = true;
+    this.listaHistorial = [];
+    this.historialService.obtenerPorPaciente(idPaciente).subscribe({
+      next: (datos) => {
+        this.listaHistorial = datos;
+        this.cargandoHistorial = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al traer historial', err);
+        this.cargandoHistorial = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

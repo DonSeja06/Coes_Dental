@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/pacientes")
+@PreAuthorize("hasAnyRole('Admin', 'Recepcionista')")
 public class PacienteController {
 
     @Autowired
@@ -30,6 +33,7 @@ public class PacienteController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<List<PacienteResponseDTO>> listarActivos() {
         List<PacienteResponseDTO> lista = pacienteService.listarPacientesActivos()
                 .stream()
@@ -59,6 +63,7 @@ public class PacienteController {
     }
 
     @GetMapping("/buscar")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
     public ResponseEntity<?> buscarPorDni(@RequestParam String dni) {
         try {
             Paciente paciente = pacienteService.buscarPorDni(dni);
@@ -69,6 +74,7 @@ public class PacienteController {
     }
 
     @GetMapping("/admin/inactivos")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<PacienteResponseDTO>> listarInactivos() {
         List<PacienteResponseDTO> lista = pacienteService.listarPacientesInactivos()
                 .stream()
@@ -78,6 +84,7 @@ public class PacienteController {
     }
 
     @PutMapping("/admin/{id}/reactivar")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> reactivar(@PathVariable Long id) {
         try {
             Paciente pacienteReactivado = pacienteService.reactivarPaciente(id);

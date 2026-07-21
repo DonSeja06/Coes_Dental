@@ -19,6 +19,9 @@ public class AdminService {
 
     @Transactional
     public Usuario registrarAdmin(Usuario adminRequest) {
+        if (usuarioRepository.existsByRol(Rol.Admin)) {
+            throw new RuntimeException("Ya existe un administrador en el sistema");
+        }
         if (usuarioRepository.existsByCorreo(adminRequest.getCorreo())) {
             throw new RuntimeException("El correo ya está en uso");
         }

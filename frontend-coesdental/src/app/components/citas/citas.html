@@ -42,17 +42,20 @@
                                 <td class="text-muted">{{ c.nombreConsultorio }}</td>
                                 <td>
                                     <span class="badge rounded-pill px-3" [ngClass]="{
-                          'bg-primary': c.estadoCita === 'CREADA',
-                          'bg-warning text-dark': c.estadoCita === 'POSPUESTA',
+                          'bg-primary text-white shadow-sm': c.estadoCita === 'CREADA',
+                          'bg-primary border text-white': c.estadoCita === 'CONFIRMADA',
+                          'bg-warning text-dark': c.estadoCita === 'EN_ESPERA',
                           'bg-info text-dark': c.estadoCita === 'ATENCION',
                           'bg-success': c.estadoCita === 'FINALIZADA',
-                          'bg-danger': c.estadoCita === 'CANCELADA'
+                          'bg-danger': c.estadoCita === 'CANCELADA',
+                          'bg-warning': c.estadoCita === 'REPROGRAMADA',
+                          'bg-secondary': c.estadoCita === 'NO_ASISTIO'
                         }">
                                         {{ c.estadoCita }}
                                     </span>
                                 </td>
                                 <td class="text-center pe-4">
-                                    <button *ngIf="c.estadoCita === 'CREADA' || c.estadoCita === 'POSPUESTA'"
+                                    <button *ngIf="['CREADA', 'CONFIRMADA', 'EN_ESPERA', 'REPROGRAMADA'].includes(c.estadoCita)"
                                         class="btn btn-sm btn-outline-danger" title="Cancelar Cita"
                                         (click)="cancelarCita(c.id)">
                                         <i class="bi bi-x-circle"></i> Cancelar
