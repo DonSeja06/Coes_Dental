@@ -7,6 +7,7 @@ import coes.com.example.CoesDental.repository.ConsultorioRepository;
 import coes.com.example.CoesDental.repository.OdontologoRepository;
 import coes.com.example.CoesDental.repository.PacienteRepository;
 import coes.com.example.CoesDental.repository.RegistroClinicoRepository;
+import coes.com.example.CoesDental.repository.PagoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ public class CitaService {
 
     @Autowired
     private RegistroClinicoRepository registroClinicoRepository;
+
+    @Autowired
+    private PagoRepository pagoRepository;
 
     @Transactional
     public Cita registrarCita(CitaRequestDTO dto) {
@@ -73,6 +77,83 @@ public class CitaService {
         nuevaCita.setEstado(EstadoCita.CREADA);
 
         return citaRepository.save(nuevaCita);
+    }
+
+    @Transactional
+    public Cita solicitarCita(CitaRequestDTO dto) {
+        Odontologo odontologo = odontologoRepository.findById(dto.getOdontologoId())
+                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+        if (odontologo.getEstado() != EstadoGeneral.ACTIVO) {
+            throw new RuntimeException("El odontólogo no está activo en el sistema");
+        }
+
+        Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        if (paciente.getEstado() != EstadoGeneral.ACTIVO) {
+            throw new RuntimeException("El paciente no está activo en el sistema");
+        }
+
+        long cruces = citaRepository.countCitasActivasPorOdontologoYFecha(dto.getOdontologoId(), dto.getFechaCita());
+        if (cruces > 0) {
+            throw new RuntimeException("El odontólogo ya tiene una cita programada en ese horario exacto");
+        }
+
+        List<coes.com.example.CoesDental.model.Consultorio> consultorios = consultorioRepository.findAll();
+        coes.com.example.CoesDental.model.Consultorio consultorioDisponible = null;
+        for (coes.com.example.CoesDental.model.Consultorio c : consultorios) {
+            if (c.getEstado() == coes.com.example.CoesDental.model.EstadoGeneral.ACTIVO && citaRepository.countCitasActivasPorConsultorioYFecha(c.getId(), dto.getFechaCita()) == 0) {
+                consultorioDisponible = c;
+                break;
+            }
+        }
+
+        if (consultorioDisponible == null) {
+            throw new RuntimeException("No hay consultorios disponibles para esta fecha y hora");
+        }
+
+        Cita nuevaCita = new Cita();
+        nuevaCita.setFechaCita(dto.getFechaCita());
+        nuevaCita.setOdontologo(odontologo);
+        nuevaCita.setPaciente(paciente);
+        nuevaCita.setConsultorio(consultorioDisponible);
+        nuevaCita.setEstado(EstadoCita.PENDIENTE_APROBACION);
+
+        return citaRepository.save(nuevaCita);
+    }
+
+    @Transactional
+    public Cita aprobarSolicitud(Long id, Long consultorioId) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        if (cita.getEstado() != EstadoCita.PENDIENTE_APROBACION) {
+            throw new RuntimeException("La cita no está pendiente de aprobación");
+        }
+
+        Consultorio consultorio = consultorioRepository.findById(consultorioId)
+                .orElseThrow(() -> new RuntimeException("Consultorio no encontrado"));
+
+        long crucesConsultorio = citaRepository.countCitasActivasPorConsultorioYFecha(consultorioId, cita.getFechaCita());
+        if (crucesConsultorio > 0) {
+            throw new RuntimeException("El consultorio ya está reservado para otra cita en ese horario exacto");
+        }
+
+        cita.setConsultorio(consultorio);
+        cita.setEstado(EstadoCita.CREADA);
+        return citaRepository.save(cita);
+    }
+
+    @Transactional
+    public void rechazarSolicitud(Long id) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+        
+        if (cita.getEstado() != EstadoCita.PENDIENTE_APROBACION) {
+            throw new RuntimeException("La cita no está pendiente de aprobación");
+        }
+        
+        cita.setEstado(EstadoCita.CANCELADA);
+        citaRepository.save(cita);
     }
 
     @Transactional(readOnly = true)
@@ -151,8 +232,21 @@ public class CitaService {
         registro.setDetalle(detalleAtencion);
         registro.setHistorial(historial);
         registro.setCita(cita);
+        RegistroClinico savedRegistro = registroClinicoRepository.save(registro);
 
-        return registroClinicoRepository.save(registro);
+        Double costoEspecialidad = cita.getOdontologo().getEspecialidad().getCosto();
+        if (costoEspecialidad == null) {
+            costoEspecialidad = 0.0;
+        }
+
+        Pago pago = new Pago();
+        pago.setCita(cita);
+        pago.setMonto(costoEspecialidad);
+        pago.setMetodoPago(MetodoPago.POR_DEFINIR);
+        pago.setEstadoPago(EstadoPago.PENDIENTE);
+        pagoRepository.save(pago);
+
+        return savedRegistro;
     }
 
     public List<Cita> listarCitasPorOdontologo(Long odontologoId) {

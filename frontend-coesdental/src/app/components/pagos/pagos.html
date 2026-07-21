@@ -20,6 +20,7 @@
                             <th>Monto</th>
                             <th>Método</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,7 +36,7 @@
                             <tr *ngFor="let p of listaPagos">
                                 <td class="ps-4 fw-bold text-primary-medical">
                                     <i class="bi bi-calendar-check me-2 text-muted"></i>
-                                    {{ p.fechaPago | date:'dd/MM/yyyy HH:mm' }}
+                                    {{ (p.fechaPago ? p.fechaPago : p.fechaCita) | date:'dd/MM/yyyy HH:mm' }}
                                 </td>
                                 <td class="fw-semibold">{{ p.nombrePaciente }}</td>
                                 <td>{{ p.nombreOdontologo }}</td>
@@ -49,6 +50,11 @@
                                     }">
                                         {{ p.estadoPago }}
                                     </span>
+                                </td>
+                                <td>
+                                    <button *ngIf="p.estadoPago === 'PENDIENTE'" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalPago" (click)="abrirModalPagarPendiente(p)">
+                                        <i class="bi bi-cash me-1"></i> Pagar
+                                    </button>
                                 </td>
                             </tr>
                         </ng-container>

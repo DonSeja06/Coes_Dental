@@ -43,14 +43,16 @@ public class PagoServiceImpl implements PagoService {
         Cita cita = citaRepository.findById(pagoRequestDTO.getCitaId())
                 .orElseThrow(() -> new RuntimeException("Cita no encontrada con id: " + pagoRequestDTO.getCitaId()));
 
-        // Verificar si la cita ya tiene un pago
-        boolean pagoExiste = pagoRepository.findAll().stream()
-                .anyMatch(p -> p.getCita().getId().equals(cita.getId()));
-        if (pagoExiste) {
-            throw new RuntimeException("Esta cita ya tiene un pago registrado.");
+        // Check if there's already a Pago for this cita
+        Pago pago = pagoRepository.findAll().stream()
+                .filter(p -> p.getCita().getId().equals(cita.getId()))
+                .findFirst()
+                .orElse(new Pago());
+
+        if (pago.getId() != null && pago.getEstadoPago() == coes.com.example.CoesDental.model.EstadoPago.PAGADO) {
+            throw new RuntimeException("Esta cita ya tiene un pago registrado y completado.");
         }
 
-        Pago pago = new Pago();
         pago.setCita(cita);
         pago.setMonto(pagoRequestDTO.getMonto());
         pago.setMetodoPago(pagoRequestDTO.getMetodoPago());
@@ -108,6 +110,9 @@ public class PagoServiceImpl implements PagoService {
         }
         if (pago.getCita().getOdontologo() != null) {
             dto.setNombreOdontologo(pago.getCita().getOdontologo().getNombre());
+        }
+        if (pago.getCita().getFechaCita() != null) {
+            dto.setFechaCita(pago.getCita().getFechaCita());
         }
         return dto;
     }

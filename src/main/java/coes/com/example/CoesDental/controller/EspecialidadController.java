@@ -51,6 +51,7 @@ public class EspecialidadController {
         EspecialidadResponseDTO dto = new EspecialidadResponseDTO();
         dto.setId(especialidad.getId());
         dto.setNombre(especialidad.getNombre());
+        dto.setCosto(especialidad.getCosto());
         return dto;
     }
 }

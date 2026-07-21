@@ -18,4 +18,5 @@ public class PagoResponseDTO {
     private LocalDateTime fechaPago;
     private String nombrePaciente;
     private String nombreOdontologo;
+    private LocalDateTime fechaCita;
 }

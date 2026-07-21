@@ -32,6 +32,13 @@ public class CitaController {
         return ResponseEntity.ok(mapearDTO(nuevaCita));
     }
 
+    @PostMapping("/solicitar")
+    @PreAuthorize("hasRole('Paciente')")
+    public ResponseEntity<?> solicitar(@Valid @RequestBody CitaRequestDTO dto) {
+        Cita nuevaCita = citaService.solicitarCita(dto);
+        return ResponseEntity.ok(mapearDTO(nuevaCita));
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo', 'Paciente')")
     public ResponseEntity<List<CitaResponseDTO>> listarTodas() {
@@ -47,6 +54,24 @@ public class CitaController {
     public ResponseEntity<?> cancelar(@PathVariable Long id) {
         citaService.cancelarCita(id);
         return ResponseEntity.ok("Cita cancelada correctamente");
+    }
+
+    @PutMapping("/{id}/aprobar")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista')")
+    public ResponseEntity<?> aprobar(@PathVariable Long id, @RequestParam Long consultorioId) {
+        try {
+            Cita citaAprobada = citaService.aprobarSolicitud(id, consultorioId);
+            return ResponseEntity.ok(mapearDTO(citaAprobada));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/rechazar")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista')")
+    public ResponseEntity<?> rechazar(@PathVariable Long id) {
+        citaService.rechazarSolicitud(id);
+        return ResponseEntity.ok("Solicitud rechazada correctamente");
     }
 
     @PutMapping("/{id}/posponer")

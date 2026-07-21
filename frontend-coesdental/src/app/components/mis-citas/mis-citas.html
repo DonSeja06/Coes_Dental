@@ -34,8 +34,12 @@
                                 <td class="fw-semibold">{{ c.nombrePaciente }}</td>
                                 <td class="text-muted">{{ c.nombreConsultorio }}</td>
                                 <td>
-                                    <span class="badge rounded-pill px-3" [ngClass]="{
-                          'bg-primary text-white shadow-sm': c.estadoCita === 'CREADA',
+                                    <span class="badge rounded-pill px-3 shadow-sm text-white" 
+                                        [ngStyle]="{
+                                            'background-color': c.estadoCita === 'PENDIENTE_APROBACION' ? '#0d6efd' : 
+                                                               (c.estadoCita === 'CREADA' ? '#0dcaf0' : null)
+                                        }"
+                                        [ngClass]="{
                           'bg-primary border text-white': c.estadoCita === 'CONFIRMADA',
                           'bg-warning text-dark': c.estadoCita === 'EN_ESPERA',
                           'bg-info text-dark': c.estadoCita === 'ATENCION',

@@ -28,8 +28,8 @@ public class EspecialidadService {
     public Especialidad actualizarEspecialidad(Long id, Especialidad datosActualizados) {
         Especialidad especialidad = especialidadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Especialidad no encontrada con el ID: " + id));
-                
         especialidad.setNombre(datosActualizados.getNombre());
+        especialidad.setCosto(datosActualizados.getCosto());
         return especialidadRepository.save(especialidad);
     }
 }

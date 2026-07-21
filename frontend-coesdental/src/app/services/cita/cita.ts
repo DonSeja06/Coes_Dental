@@ -18,6 +18,22 @@ export class CitaService {
     return this.http.post(this.apiUrl, cita);
   }
 
+  solicitar(cita: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/solicitar`, cita);
+  }
+
+  posponer(id: number, nuevaFecha: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/posponer?nuevaFecha=${encodeURIComponent(nuevaFecha)}`, {});
+  }
+
+  aprobar(id: number, consultorioId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/aprobar?consultorioId=${consultorioId}`, {});
+  }
+
+  rechazar(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/rechazar`, {}, {responseType: 'text'});
+  }
+
   cancelar(id: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/cancelar`, {}, {responseType: 'text'});
   }

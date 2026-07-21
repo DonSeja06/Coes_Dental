@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OdontologoService } from '../../services/odontologo/odontologo';
 import { EspecialidadService } from '../../services/especialidad/especialidad';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-odontologos',
@@ -37,7 +38,8 @@ export class Odontologos implements OnInit {
       especialidadId: ['', Validators.required] 
     });
     this.especialidadForm = this.fb.group({
-      nombre: ['', Validators.required]
+      nombre: ['', Validators.required],
+      costo: [null, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -100,7 +102,7 @@ export class Odontologos implements OnInit {
         next: () => {
           this.cargarInactivos(); 
         },
-        error: (err) => alert('Error al reactivar odontólogo.')
+        error: (err) => Swal.fire('Error', 'Error al reactivar odontólogo.', 'error')
       });
     }
   }
@@ -155,7 +157,7 @@ export class Odontologos implements OnInit {
             document.getElementById('btnCerrarModalOdontologo')?.click();
             this.cargarOdontologos();
           },
-          error: (err) => alert('Error al actualizar: ' + err.error)
+          error: (err) => Swal.fire('Error', 'Error al actualizar: ' + err.error, 'error')
         });
       } else {
         this.odontologoService.registrar(payload).subscribe({
@@ -164,7 +166,7 @@ export class Odontologos implements OnInit {
             this.odontologoForm.reset();
             this.cargarOdontologos();
           },
-          error: (err) => alert('Error al crear: ' + err.error)
+          error: (err) => Swal.fire('Error', 'Error al crear: ' + err.error, 'error')
         });
       }
     } else {
@@ -187,7 +189,7 @@ export class Odontologos implements OnInit {
 
   seleccionarEspecialidadParaEditar(esp: any) {
     this.especialidadEnEdicion = esp.id;
-    this.especialidadForm.patchValue({ nombre: esp.nombre });
+    this.especialidadForm.patchValue({ nombre: esp.nombre, costo: esp.costo });
   }
 
   guardarEspecialidad() {
@@ -200,7 +202,7 @@ export class Odontologos implements OnInit {
             this.cargarEspecialidades();
             this.prepararNuevaEspecialidad();
           },
-          error: (err) => alert('Error al actualizar especialidad')
+          error: (err) => Swal.fire('Error', 'Error al actualizar especialidad', 'error')
         });
       } else {
         this.especialidadService.registrar(payload).subscribe({
@@ -208,7 +210,7 @@ export class Odontologos implements OnInit {
             this.cargarEspecialidades();
             this.prepararNuevaEspecialidad();
           },
-          error: (err) => alert('Error al crear especialidad')
+          error: (err) => Swal.fire('Error', 'Error al crear especialidad', 'error')
         });
       }
     }

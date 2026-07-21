@@ -33,7 +33,7 @@ export class Calendario implements OnInit {
       right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
     slotMinTime: '08:00:00',
-    slotMaxTime: '20:00:00',
+    slotMaxTime: '22:00:00',
     allDaySlot: false,
     events: [],
     eventClick: this.abrirDetalleCita.bind(this)
@@ -50,7 +50,19 @@ export class Calendario implements OnInit {
 
   cargarEventos() {
     this.cargando = true;
-    this.citaService.listarTodas().subscribe({
+    const rol = localStorage.getItem('rol');
+    const userId = Number(localStorage.getItem('userId'));
+    
+    let fetchObservable;
+    if (rol === 'ROLE_Paciente') {
+        fetchObservable = this.citaService.listarPorPaciente(userId);
+    } else if (rol === 'ROLE_Odontologo') {
+        fetchObservable = this.citaService.listarPorOdontologo(userId);
+    } else {
+        fetchObservable = this.citaService.listarTodas();
+    }
+
+    fetchObservable.subscribe({
       next: (res) => {
         const eventosConvertidos = res.map((c: any) => {
           

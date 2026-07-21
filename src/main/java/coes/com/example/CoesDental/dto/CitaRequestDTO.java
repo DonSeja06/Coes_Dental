@@ -21,6 +21,5 @@ public class CitaRequestDTO {
     @NotNull(message = "El ID del paciente es obligatorio")
     private Long pacienteId;
 
-    @NotNull(message = "El ID del consultorio es obligatorio")
     private Long consultorioId;
 }

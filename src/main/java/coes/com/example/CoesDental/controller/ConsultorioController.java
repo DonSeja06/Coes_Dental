@@ -15,19 +15,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/admin/consultorios")
-@PreAuthorize("hasRole('Admin')")
 public class ConsultorioController {
 
     @Autowired
     private ConsultorioService consultorioService;
 
     @PostMapping
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<ConsultorioResponseDTO> registrar(@Valid @RequestBody Consultorio consultorio) {
         Consultorio nuevoConsultorio = consultorioService.registrarConsultorio(consultorio);
         return ResponseEntity.ok(mapearDTO(nuevoConsultorio));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody Consultorio consultorio) {
         try {
             Consultorio consultorioActualizado = consultorioService.actualizarConsultorio(id, consultorio);
@@ -38,6 +39,7 @@ public class ConsultorioController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista')")
     public ResponseEntity<List<ConsultorioResponseDTO>> listarActivos() {
         List<ConsultorioResponseDTO> lista = consultorioService.listarConsultoriosActivos()
                 .stream()
@@ -47,6 +49,7 @@ public class ConsultorioController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<String> eliminarLogico(@PathVariable Long id) {
         try {
             consultorioService.eliminarLogicoConsultorio(id);
@@ -65,6 +68,7 @@ public class ConsultorioController {
     }
 
     @PutMapping("/{id}/reactivar")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> reactivar(@PathVariable Long id) {
         try {
             Consultorio consultorioReactivado = consultorioService.reactivarConsultorio(id);

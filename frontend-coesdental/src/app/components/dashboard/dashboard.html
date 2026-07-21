@@ -97,12 +97,19 @@
                                         <td>{{ cita.nombreOdontologo }}</td>
                                         <td class="text-muted">{{ cita.nombreConsultorio }}</td>
                                         <td>
-                                            <span class="badge rounded-pill px-3"
+                                            <span class="badge rounded-pill px-3 shadow-sm text-white"
+                                                [ngStyle]="{
+                                                    'background-color': cita.estadoCita === 'PENDIENTE_APROBACION' ? '#0d6efd' : 
+                                                                       (cita.estadoCita === 'CREADA' ? '#0dcaf0' : null),
+                                                    'color': (cita.estadoCita === 'PENDIENTE_APROBACION' || cita.estadoCita === 'CREADA') ? 'white' : null
+                                                }"
                                                 [ngClass]="{
-                                                    'bg-primary': cita.estadoCita === 'CREADA',
-                                                    'bg-warning text-dark': cita.estadoCita === 'POSPUESTA',
+                                                    'bg-primary border text-white': cita.estadoCita === 'CONFIRMADA',
+                                                    'bg-warning text-dark': cita.estadoCita === 'REPROGRAMADA',
                                                     'bg-info text-dark': cita.estadoCita === 'ATENCION',
-                                                    'bg-success': cita.estadoCita === 'FINALIZADA'
+                                                    'bg-success': cita.estadoCita === 'FINALIZADA',
+                                                    'bg-danger': cita.estadoCita === 'CANCELADA',
+                                                    'bg-secondary': cita.estadoCita === 'NO_ASISTIO'
                                                 }">
                                                 {{ cita.estadoCita }}
                                             </span>

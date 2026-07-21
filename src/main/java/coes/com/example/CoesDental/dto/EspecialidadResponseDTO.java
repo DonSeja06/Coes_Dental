@@ -8,4 +8,5 @@ import lombok.Setter;
 public class EspecialidadResponseDTO {
     private Long id;
     private String nombre;
+    private Double costo;
 }

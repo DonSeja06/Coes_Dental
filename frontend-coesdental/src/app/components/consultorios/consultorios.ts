@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConsultorioService } from '../../services/consultorio/consultorio';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-consultorios',
@@ -98,14 +99,14 @@ export class Consultorios implements OnInit {
       mensaje = 'Por favor, verifica los datos. El nombre debe tener al menos 2 caracteres y el piso debe ser un número válido.';
     }
 
-    alert(mensaje);
+    Swal.fire('Atención', mensaje, 'info');
   }
 
   desactivarConsultorio(id: number) {
     if (confirm('¿Estás seguro de que deseas desactivar este consultorio?')) {
       this.consultorioService.desactivar(id).subscribe({
         next: () => { this.cargarConsultorios(); },
-        error: (err) => alert('Error al desactivar: ' + err.error)
+        error: (err) => Swal.fire('Error', 'Error al desactivar: ' + err.error, 'error')
       });
     }
   }

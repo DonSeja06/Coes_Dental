@@ -108,6 +108,40 @@ export class Citas implements OnInit {
     }
   }
 
+  posponerCita(id: number) {
+    Swal.fire({
+      title: 'Posponer Cita',
+      html: '<input type="datetime-local" id="swal-input-fecha" class="swal2-input">',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Posponer',
+      cancelButtonText: 'Cerrar',
+      preConfirm: () => {
+        const fecha = (document.getElementById('swal-input-fecha') as HTMLInputElement).value;
+        if (!fecha) {
+          Swal.showValidationMessage('Debe seleccionar una nueva fecha');
+          return false;
+        }
+        return fecha;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.citaService.posponer(id, result.value as string).subscribe({
+          next: () => {
+            Swal.fire('Éxito', 'La cita ha sido pospuesta.', 'success');
+            this.cargarCitas();
+          },
+          error: (err) => {
+            let msg = 'Error al posponer la cita.';
+            if (err.error && err.error.message) msg = err.error.message;
+            else if (typeof err.error === 'string') msg = err.error;
+            Swal.fire('Error', msg, 'error');
+          }
+        });
+      }
+    });
+  }
+
   cancelarCita(id: number) {
     Swal.fire({
       title: '¿Cancelar Cita?',
@@ -124,6 +158,73 @@ export class Citas implements OnInit {
             this.cargarCitas();
           },
           error: (err) => Swal.fire('Error', 'No se pudo cancelar la cita.', 'error')
+        });
+      }
+    });
+  }
+
+  aprobarSolicitud(id: number) {
+    if (!this.listaConsultorios || this.listaConsultorios.length === 0) {
+      Swal.fire('Error', 'No hay consultorios disponibles para asignar.', 'error');
+      return;
+    }
+    
+    let optionsHtml = '';
+    this.listaConsultorios.forEach(c => {
+      optionsHtml += `<option value="${c.id}">${c.nombreConsultorio}</option>`;
+    });
+
+    Swal.fire({
+      title: 'Aprobar Cita',
+      html: `
+        <div class="mb-3">
+           <label class="form-label text-start d-block">Seleccionar Consultorio Definitivo:</label>
+           <select id="swal-consultorio-id" class="form-select">
+             ${optionsHtml}
+           </select>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Aprobar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const select = document.getElementById('swal-consultorio-id') as HTMLSelectElement;
+        return select.value;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+         this.citaService.aprobar(id, Number(result.value)).subscribe({
+           next: () => {
+             Swal.fire('Aprobada', 'La solicitud ha sido aprobada y asignada al consultorio.', 'success');
+             this.cargarCitas();
+           },
+           error: (err) => {
+             let msg = 'No se pudo aprobar la solicitud.';
+             if (err.error && err.error.message) msg = err.error.message;
+             else if (typeof err.error === 'string') msg = err.error;
+             Swal.fire('Error', msg, 'error');
+           }
+         });
+      }
+    });
+  }
+
+  rechazarSolicitud(id: number) {
+    Swal.fire({
+      title: '¿Rechazar Solicitud?',
+      text: '¿Estás seguro de rechazar esta solicitud de cita?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, rechazar',
+      cancelButtonText: 'Volver'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.citaService.rechazar(id).subscribe({
+          next: () => {
+            Swal.fire('Rechazada', 'La solicitud ha sido rechazada.', 'success');
+            this.cargarCitas();
+          },
+          error: (err) => Swal.fire('Error', 'No se pudo rechazar la solicitud.', 'error')
         });
       }
     });

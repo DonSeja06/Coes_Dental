@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PacienteService } from '../../services/paciente/paciente';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-mis-pacientes',
@@ -86,12 +87,12 @@ export class MisPacientes implements OnInit {
           document.getElementById('btnCerrarModalPacienteDoctor')?.click();
           this.pacienteForm.reset();
           this.cargarPacientes();
-          alert('Paciente registrado correctamente.');
+          Swal.fire('Éxito', 'Paciente registrado correctamente.', 'success');
         },
         error: (err) => {
           let mensaje = 'Error al registrar el paciente.';
           if (typeof err.error === 'string') mensaje = err.error;
-          alert( mensaje);
+          Swal.fire('Atención', mensaje, 'info');
         }
       });
     } else {

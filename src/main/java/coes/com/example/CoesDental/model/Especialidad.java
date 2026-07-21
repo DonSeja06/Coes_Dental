@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,9 @@ public class Especialidad {
 
     @NotBlank(message = "El nombre de la especialidad no puede estar en blanco")
     private String nombre;
+
+    @NotNull(message = "El costo de la especialidad es obligatorio")
+    private Double costo;
 
     @OneToMany(mappedBy = "especialidad")
     private List<Odontologo> odontologos;

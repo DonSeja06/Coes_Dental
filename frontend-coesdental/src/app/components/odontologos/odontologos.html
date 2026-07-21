@@ -238,13 +238,15 @@
 
             <div class="modal-body p-4">
 
-                <form [formGroup]="especialidadForm" (ngSubmit)="guardarEspecialidad()" class="d-flex mb-3">
-                    <input type="text" class="form-control me-2 border-secondary" formControlName="nombre"
+                <form [formGroup]="especialidadForm" (ngSubmit)="guardarEspecialidad()" class="d-flex mb-3 gap-2">
+                    <input type="text" class="form-control border-secondary" formControlName="nombre"
                         placeholder="Ej. Ortodoncia...">
-                    <button type="submit" class="btn btn-secondary" [disabled]="especialidadForm.invalid">
+                    <input type="number" step="0.01" min="0" class="form-control border-secondary flex-grow-1" style="max-width: 150px;" formControlName="costo"
+                        placeholder="Precio (S/)">
+                    <button type="submit" class="btn btn-secondary flex-shrink-0" [disabled]="especialidadForm.invalid">
                         <i class="bi" [ngClass]="especialidadEnEdicion ? 'bi-check-lg' : 'bi-plus-lg'"></i>
                     </button>
-                    <button *ngIf="especialidadEnEdicion" type="button" class="btn btn-light ms-1"
+                    <button *ngIf="especialidadEnEdicion" type="button" class="btn btn-light flex-shrink-0"
                         (click)="prepararNuevaEspecialidad()" title="Cancelar edición">
                         <i class="bi bi-x"></i>
                     </button>
@@ -255,7 +257,11 @@
                 <div class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
                     <div class="list-group-item d-flex justify-content-between align-items-center px-0"
                         *ngFor="let esp of listaEspecialidades">
-                        <span class="text-muted fw-medium">{{ esp.nombre }}</span>
+                        <div>
+                            <span class="text-muted fw-medium d-block">{{ esp.nombre }}</span>
+                            <small class="text-success fw-bold" *ngIf="esp.costo !== null">S/ {{ esp.costo }}</small>
+                            <small class="text-danger fw-bold" *ngIf="esp.costo === null">Sin costo</small>
+                        </div>
                         <button class="btn btn-sm btn-outline-primary border-0"
                             (click)="seleccionarEspecialidadParaEditar(esp)">
                             <i class="bi bi-pencil"></i>

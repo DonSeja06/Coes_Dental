@@ -42,7 +42,7 @@ public class OdontologoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo')")
+    @PreAuthorize("hasAnyRole('Admin', 'Recepcionista', 'Odontologo', 'Paciente')")
     public ResponseEntity<List<OdontologoResponseDTO>> listarActivos() {
         List<OdontologoResponseDTO> listaLimpia = odontologoService.listarOdontologosActivos()
                 .stream()

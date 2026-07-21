@@ -97,7 +97,7 @@ export class Pacientes implements OnInit {
         next: () => {
           this.cargarInactivos();
         },
-        error: (err) => alert('Error al reactivar paciente.')
+        error: (err) => Swal.fire('Error', 'Error al reactivar paciente.', 'error')
       });
     }
   }
@@ -163,7 +163,7 @@ export class Pacientes implements OnInit {
           },
           error: (error) => {
             console.error('Error al editar paciente', error);
-            alert('Hubo un error al actualizar al paciente.');
+            Swal.fire('Error', 'Hubo un error al actualizar al paciente.', 'error');
           }
         });
       } 
@@ -176,7 +176,7 @@ export class Pacientes implements OnInit {
           },
           error: (error) => {
             console.error('Error al crear paciente', error);
-            alert('Hubo un error al crear el paciente.');
+            Swal.fire('Error', 'Hubo un error al crear el paciente.', 'error');
           }
         });
       }
@@ -196,7 +196,7 @@ export class Pacientes implements OnInit {
         },
         error: (error) => {
           console.error('Error al desactivar', error);
-          alert('Hubo un error al desactivar al paciente.');
+          Swal.fire('Error', 'Hubo un error al desactivar al paciente.', 'error');
         }
       });
     }
